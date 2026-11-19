@@ -9,3 +9,4 @@ __pycache__/
 releases/
 docs/ru/
 scripts/local.env
+/build/

@@ -4,7 +4,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LOCAL_ENV="${PHOTOHUB_LOCAL_ENV-$ROOT/scripts/local.env}"
 if [[ -n "$LOCAL_ENV" && -f "$LOCAL_ENV" ]]; then
   typeset -A preset
-  for var in PHOTOHUB_BUNDLE_ID PHOTOHUB_SIGN_IDENTITY PHOTOHUB_BLOCKED_IDENTITIES PHOTOHUB_COPYRIGHT PHOTOHUB_INSTALL_DIR PHOTOHUB_SUPPORT; do
+  for var in PHOTOHUB_BUNDLE_ID PHOTOHUB_SIGN_IDENTITY PHOTOHUB_SIGN_KEYCHAIN PHOTOHUB_BLOCKED_IDENTITIES PHOTOHUB_COPYRIGHT PHOTOHUB_INSTALL_DIR PHOTOHUB_SUPPORT; do
     [[ -n "${(P)var}" ]] && preset[$var]="${(P)var}"
   done
   source "$LOCAL_ENV"
@@ -13,10 +13,11 @@ fi
 SUPPORT="${PHOTOHUB_SUPPORT:-$HOME/Library/Application Support/PhotoHub}"
 BUNDLE_ID="${PHOTOHUB_BUNDLE_ID:-com.example.photohub}"
 IDENTITY="${PHOTOHUB_SIGN_IDENTITY:--}"
+KEYCHAIN=(${PHOTOHUB_SIGN_KEYCHAIN:+"$PHOTOHUB_SIGN_KEYCHAIN"})
 COPYRIGHT="${PHOTOHUB_COPYRIGHT:-© 2026 PhotoHub contributors}"
 DEST="${PHOTOHUB_INSTALL_DIR:-/Applications}"
 VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION")"
-BUILD="$(git -C "$ROOT" rev-list --count HEAD)"
+BUILD="$(git -C "$ROOT" rev-list --count HEAD 2>/dev/null || print 0)"
 LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 
 mkdir -p "$SUPPORT"
@@ -66,8 +67,8 @@ done
 if [[ "$IDENTITY" == "-" ]]; then
   print -u2 "NOTE: signing ad-hoc. macOS may ask for Photos access again after a rebuild; see GUIDE.md to sign with a local identity."
   codesign --force --timestamp=none -s - "$NEW"
-elif security find-identity -p codesigning | grep -qF "\"$IDENTITY\""; then
-  codesign --force --timestamp=none -s "$IDENTITY" "$NEW"
+elif security find-identity -p codesigning $KEYCHAIN | grep -qF "\"$IDENTITY\""; then
+  codesign --force --timestamp=none ${KEYCHAIN:+--keychain} $KEYCHAIN -s "$IDENTITY" "$NEW"
 else
   print -u2 "WARNING: signing identity \"$IDENTITY\" not found in the keychain, signing ad-hoc."
   print -u2 "WARNING: macOS will ask for Photos access again after every rebuild."
