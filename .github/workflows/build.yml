@@ -1,0 +1,51 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+
+      - name: Toolchain
+        run: |
+          sw_vers
+          xcode-select -p
+          swift --version
+          uv --version
+
+      - name: Python backend
+        run: uv sync --locked
+
+      - name: Checks (requirements, backend, debug build)
+        run: scripts/check.sh --no-ui
+
+      - name: Release build of the app and the analyzer
+        run: swift build -c release --package-path App
+
+      - name: Assemble and sign PhotoHub.app ad-hoc
+        env:
+          PHOTOHUB_LOCAL_ENV: ""
+          PHOTOHUB_SIGN_IDENTITY: "-"
+          PHOTOHUB_INSTALL_DIR: ${{ runner.temp }}/app
+          PHOTOHUB_SUPPORT: ${{ runner.temp }}/support
+        run: |
+          scripts/build_app.sh
+          codesign --verify --deep --strict "$PHOTOHUB_INSTALL_DIR/PhotoHub.app"
+          plutil -lint "$PHOTOHUB_INSTALL_DIR/PhotoHub.app/Contents/Info.plist"
