@@ -783,6 +783,58 @@ final class PointAnnotation: NSObject, MKAnnotation {
     }
 }
 
+final class PhotoPin: MKAnnotationView {
+    private let photo = CALayer()
+    private let badge = NSTextField(labelWithString: "")
+    private var shownKey = ""
+
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        frame = NSRect(x: 0, y: 0, width: 54, height: 54)
+        wantsLayer = true
+        layer?.shadowColor = NSColor.black.cgColor
+        layer?.shadowOpacity = 0.45
+        layer?.shadowRadius = 5
+        layer?.shadowOffset = CGSize(width: 0, height: -2)
+        photo.frame = bounds
+        photo.cornerRadius = 11
+        photo.masksToBounds = true
+        photo.borderWidth = 2.5
+        photo.borderColor = NSColor.white.cgColor
+        photo.backgroundColor = NSColor.darkGray.cgColor
+        photo.contentsGravity = .resizeAspectFill
+        layer?.addSublayer(photo)
+        badge.font = .systemFont(ofSize: 11, weight: .bold)
+        badge.textColor = .white
+        badge.alignment = .center
+        badge.wantsLayer = true
+        badge.layer?.backgroundColor = NSColor.systemBlue.cgColor
+        badge.layer?.cornerRadius = 9
+        badge.layer?.borderWidth = 1.5
+        badge.layer?.borderColor = NSColor.white.cgColor
+        addSubview(badge)
+    }
+
+    required init?(coder: NSCoder) { nil }
+
+    func show(_ item: Item?, count: Int) {
+        let text = count >= 1000 ? "\(count / 1000)k" : "\(count)"
+        badge.stringValue = text
+        badge.isHidden = count < 2
+        let width = max(20, CGFloat(text.count) * 7 + 10)
+        badge.frame = NSRect(x: bounds.width - width + 6, y: bounds.height - 14, width: width, height: 19)
+        guard let item else { return }
+        let key = item.key
+        guard key != shownKey else { return }
+        shownKey = key
+        photo.contents = nil
+        Thumbs.shared.image(for: item, side: 120) { [weak self] image in
+            guard let self, self.shownKey == key else { return }
+            self.photo.contents = image
+        }
+    }
+}
+
 struct MapPage: NSViewRepresentable {
     @ObservedObject var model: Model
 
@@ -791,8 +843,8 @@ struct MapPage: NSViewRepresentable {
     func makeNSView(context: Context) -> MKMapView {
         let view = MKMapView()
         view.delegate = context.coordinator
-        view.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: "point")
-        view.register(MKMarkerAnnotationView.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultClusterAnnotationViewReuseIdentifier)
+        view.register(PhotoPin.self, forAnnotationViewWithReuseIdentifier: "point")
+        view.register(PhotoPin.self, forAnnotationViewWithReuseIdentifier: MKMapViewDefaultClusterAnnotationViewReuseIdentifier)
         return view
     }
 
@@ -815,22 +867,20 @@ struct MapPage: NSViewRepresentable {
 
         init(_ model: Model) { self.model = model }
 
-        private func label(_ n: Int) -> String { n >= 1000 ? "\(n / 1000)k" : "\(n)" }
-
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
             if let cluster = annotation as? MKClusterAnnotation {
-                let view = mapView.dequeueReusableAnnotationView(withIdentifier: MKMapViewDefaultClusterAnnotationViewReuseIdentifier, for: annotation) as? MKMarkerAnnotationView
-                let total = cluster.memberAnnotations.reduce(0) { $0 + (($1 as? PointAnnotation)?.itemIDs.count ?? 0) }
-                view?.glyphText = label(total)
-                view?.markerTintColor = .systemBlue
+                let view = mapView.dequeueReusableAnnotationView(withIdentifier: MKMapViewDefaultClusterAnnotationViewReuseIdentifier, for: annotation) as? PhotoPin
+                let ids = cluster.memberAnnotations.flatMap { ($0 as? PointAnnotation)?.itemIDs ?? [] }
+                let model = model
+                MainActor.assumeIsolated { view?.show(ids.first.flatMap { model.byID[$0] }, count: ids.count) }
                 view?.displayPriority = .required
                 return view
             }
             guard let point = annotation as? PointAnnotation else { return nil }
-            let view = mapView.dequeueReusableAnnotationView(withIdentifier: "point", for: annotation) as? MKMarkerAnnotationView
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: "point", for: annotation) as? PhotoPin
             view?.clusteringIdentifier = "photos"
-            view?.glyphText = label(point.itemIDs.count)
-            view?.markerTintColor = .systemTeal
+            let model = model
+            MainActor.assumeIsolated { view?.show(point.itemIDs.first.flatMap { model.byID[$0] }, count: point.itemIDs.count) }
             return view
         }
 
