@@ -17,7 +17,8 @@ Checks this checkout without touching your catalog, archive or installed app:
      and en.lproj and ru.lproj have the same keys
   4. a debug build of PhotoHub and PhotoHubAnalyzer
   5. the Removal self-test: a scratch copy of the app ($BUNDLE_ID, ad-hoc) runs
-     "deletetest:flow" in snapshot mode on a temporary archive and must put every file back
+     "deletetest:flow" in snapshot mode on a temporary archive and must put every file back,
+     also from a mocked iCloud Drive Trash
 
   --scratch-path DIR   Swift build folder (default App/.build)
   --no-ui              skip step 5, for machines without a logged-in GUI session
@@ -117,7 +118,9 @@ if (( UI )); then
   for expected in "accepted put back: 3 of 3, present 111, same content true" \
       "archive only put back: 3 of 3, present 111, same content true" "left in archive: 000" \
       "non-main version scope ok: true" "main version scope ok: true" "photos version scope ok: true" \
-      "undo history ok: true" "history cap: kept 20, dropped 5, ok: true" "scope files left: 0000" "done"; do
+      "undo history ok: true" "history cap: kept 20, dropped 5, ok: true" "scope files left: 0000" \
+      "mock renamed duplicates ok: true" "mock occupied ok: true" "mock keep both: DSCF3121 2.RAF, ok: true" \
+      "attempts 2, present true, ok: true" "mock missing ok: true" "done"; do
     grep -qF "$expected" "$REPORT" || { print -u2 "missing in the report: $expected"; failed=1; }
   done
   [[ -s "$WORK/shot-1.png" ]] || { print -u2 "the app did not capture its window"; failed=1; }

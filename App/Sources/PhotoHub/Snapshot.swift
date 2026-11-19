@@ -24,7 +24,12 @@ enum Snapshot {
             }
             delay += SnapshotOptions.staged ? 10.0 : SnapshotOptions.visible ? 6.0 : 4.0
         }
-        DispatchQueue.main.asyncAfter(deadline: .now() + delay + 0.5) { exit(0) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay + 0.5) { finish(Date().addingTimeInterval(900)) }
+    }
+
+    private static func finish(_ deadline: Date) {
+        guard Removal.testing, Date() < deadline else { exit(0) }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { finish(deadline) }
     }
 
     @MainActor

@@ -429,7 +429,7 @@ final class Catalog {
         return out
     }
 
-    func restore(_ backup: ItemBackup, paths: Set<String>) {
+    func restore(_ backup: ItemBackup, paths: Set<String>, renamed: [String: String] = [:]) {
         guard let key = backup.item["key"] as? String else { return }
         let members = backup.members.filter { ($0["source"] as? String) == "archive" && paths.contains($0["path"] as? String ?? "") }
         guard !members.isEmpty else { return }
@@ -446,13 +446,13 @@ final class Catalog {
             return
         }
         for member in members {
-            let path = member["path"] as? String ?? ""
+            let old = member["path"] as? String ?? "", path = renamed[old] ?? old
             if rows("SELECT id FROM member WHERE item_id = ? AND source = 'archive' AND path = ?", [item, path]).isEmpty {
-                insert("member", member, set: ["item_id": item], skip: ["id"])
+                insert("member", member, set: ["item_id": item, "path": path, "name": (path as NSString).lastPathComponent], skip: ["id"])
             }
         }
-        if let choice = backup.choice, paths.contains(choice["path"] as? String ?? "") { insert("main_choice", choice) }
-        if let thumb = backup.item["thumb_path"] as? String, paths.contains(thumb) { run("UPDATE item SET thumb_path = ? WHERE id = ?", [thumb, item]) }
+        if let choice = backup.choice, let path = choice["path"] as? String, paths.contains(path) { insert("main_choice", choice, set: ["path": renamed[path] ?? path]) }
+        if let thumb = backup.item["thumb_path"] as? String, paths.contains(thumb) { run("UPDATE item SET thumb_path = ? WHERE id = ?", [renamed[thumb] ?? thumb, item]) }
         run("""
             UPDATE item SET
               n_members = (SELECT COUNT(*) FROM member WHERE item_id = ?1),

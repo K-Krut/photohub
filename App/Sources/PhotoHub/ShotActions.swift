@@ -110,6 +110,8 @@ struct DeletionToast: Identifiable {
     var undo: UUID?
     var photos = false
     var icon = "trash"
+    var reveal: [PutBackResult] = []
+    var conflict: UUID?
 }
 
 struct DeletionRecord {
@@ -176,6 +178,8 @@ final class ShotActions: ObservableObject {
     var history = DeletionHistory()
     var undoTargets: [UUID: DeletionUndoTarget] = [:]
     var restoring: [DeletionRecord] = []
+    var conflicts: [UUID: DeletionRecord] = [:]
+    var beside: [UUID: Bool] = [:]
 }
 
 extension Model {
@@ -379,39 +383,82 @@ extension Model {
         }
         let record = actions.restoring.removeFirst()
         busyTool = String(localized: "Putting files back…")
+        let beside = actions.beside.removeValue(forKey: record.id) ?? false
         DispatchQueue.global(qos: .userInitiated).async {
-            let results = record.files.map { ($0, Removal.putBack($0.file)) }
+            let targets = beside ? Dictionary(uniqueKeysWithValues: record.files.enumerated().map { ($0.offset, Removal.freeName(beside: $0.element.file.original)) }) : [:]
+            let results = Removal.putBack(record.files.map(\.file), to: targets)
             DispatchQueue.main.async {
                 self.busyTool = ""
-                let back = results.filter { $0.1 == nil }.map { $0.0 }
-                var paths: [String: Set<String>] = [:]
-                for file in back { paths[file.key, default: []].insert(file.path) }
-                for (key, set) in paths {
-                    if let backup = record.backups[key] { self.catalog?.restore(backup, paths: set) }
-                }
-                let wasViewing = self.viewing
-                if wasViewing, paths.count == 1, back.count == 1, let path = back.first?.path { self.keepVersion(path) }
-                self.reload()
-                let restored = self.flat.filter { paths[$0.key] != nil }
-                if let first = restored.first {
-                    self.selection = Set(restored.map { $0.id })
-                    self.selected = first
-                    self.viewing = wasViewing
-                    self.scrollRequest += 1
-                }
-                let failures = results.compactMap { pair in pair.1.map { "\(pair.0.file.original.lastPathComponent): \($0.localizedDescription)" } }
-                var toast = DeletionToast(title: String(localized: "Put back \(back.count) files"), icon: "arrow.uturn.backward")
-                if !record.label.isEmpty { toast.detail = String(localized: "Undid deleting “\(record.label)”") }
-                if !failures.isEmpty {
-                    toast.failed = true
-                    toast.detail = String(localized: "Could not put back \(failures.count) files. They are still in the Trash.")
-                    toast.details = failures.joined(separator: "\n")
-                    if back.isEmpty { toast.title = toast.detail; toast.detail = "" }
-                }
-                self.showToast(toast)
+                self.finishPutBack(record, results)
                 self.putBackNext()
             }
         }
+    }
+
+    private func finishPutBack(_ record: DeletionRecord, _ results: [PutBackResult]) {
+        let actions = ShotActions.shared
+        let pairs = Array(zip(record.files, results))
+        let back = pairs.filter { $0.1.failure == nil }
+        var paths: [String: Set<String>] = [:]
+        var renamed: [String: String] = [:]
+        let root = Catalog.archiveRoot.standardizedFileURL.path + "/"
+        for (file, result) in back {
+            paths[file.key, default: []].insert(file.path)
+            let target = result.target.standardizedFileURL.path
+            if result.target.standardizedFileURL != file.file.original.standardizedFileURL, target.hasPrefix(root) { renamed[file.path] = String(target.dropFirst(root.count)) }
+        }
+        for (key, set) in paths {
+            if let backup = record.backups[key] { catalog?.restore(backup, paths: set, renamed: renamed) }
+        }
+        let wasViewing = viewing
+        if wasViewing, paths.count == 1, back.count == 1, let path = back.first?.0.path { keepVersion(renamed[path] ?? path) }
+        reload()
+        let restored = flat.filter { paths[$0.key] != nil }
+        if let first = restored.first {
+            selection = Set(restored.map { $0.id })
+            selected = first
+            viewing = wasViewing
+            scrollRequest += 1
+        }
+        var toast = DeletionToast(title: String(localized: "Put back \(back.count) files"), icon: "arrow.uturn.backward")
+        if !record.label.isEmpty { toast.detail = String(localized: "Undid deleting “\(record.label)”") }
+        if let only = back.first, back.count == 1, renamed[only.0.path] != nil {
+            toast.detail = String(localized: "Put back next to the other file as “\(only.1.target.lastPathComponent)”.")
+        }
+        let failed = pairs.filter { $0.1.failure != nil }
+        guard !failed.isEmpty else { return showToast(toast) }
+        toast.failed = true
+        toast.reveal = failed.map { $0.1 }
+        let summary = String(localized: "Could not put back \(failed.count) files. They are still in the Trash.")
+        toast.detail = failed.count == 1 ? failed[0].1.message : summary
+        if back.isEmpty {
+            toast.title = failed.count == 1 ? String(localized: "Could not put back “\(failed[0].0.file.original.lastPathComponent)”") : summary
+        }
+        if failed.count > 1 { toast.details = failed.map { $0.1.message }.joined(separator: "\n\n") }
+        let occupied = failed.filter { $0.1.failure == .occupied && $0.1.source != nil }
+        if !occupied.isEmpty {
+            let pending = DeletionRecord(files: occupied.map { $0.0 }, backups: record.backups, label: record.label)
+            actions.conflicts[pending.id] = pending
+            toast.conflict = pending.id
+        }
+        let retry = failed.filter { pair in
+            if case .failed = pair.1.failure { return true }
+            return pair.1.failure == .retrashed
+        }
+        if !retry.isEmpty {
+            let again = DeletionRecord(files: retry.map { $0.0 }, backups: record.backups, label: record.label)
+            remember(again)
+            toast.undo = again.id
+        }
+        showToast(toast)
+    }
+
+    func putBackBeside(_ id: UUID) {
+        let actions = ShotActions.shared
+        guard let record = actions.conflicts.removeValue(forKey: id) else { return }
+        actions.beside[record.id] = true
+        actions.restoring.append(record)
+        putBackNext()
     }
 
     func archiveURLs(_ items: [Item]) -> [URL] {
@@ -603,15 +650,27 @@ struct ToastView: View {
             }
             .frame(maxWidth: 520, alignment: .leading)
             if let details = toast.details {
-                Button("Details") { model.notice = Notice(title: String(localized: "Could Not Delete"), text: details) }
+                Button("Details") {
+                    model.notice = Notice(title: toast.reveal.isEmpty ? String(localized: "Could Not Delete") : String(localized: "Could Not Put Back"), text: details)
+                }
             }
             if toast.photos {
                 Button("Open Photos") { NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Photos.app")) }
             }
+            if !toast.reveal.isEmpty {
+                Button("Show in Trash") { Removal.reveal(toast.reveal) }
+            }
+            if let id = toast.conflict {
+                Button("Keep Both") {
+                    close()
+                    model.putBackBeside(id)
+                }
+                .help("Put the file back next to the other one under a new name; nothing is replaced")
+            }
             if let id = toast.undo {
-                Button("Undo") { model.undoDeletion(id) }
+                Button(toast.failed ? "Try Again" : "Undo") { model.undoDeletion(id) }
                     .buttonStyle(.borderedProminent)
-                    .help("Put the files back where they were (⌘Z)")
+                    .help(toast.failed ? "Try to put the files back again (⌘Z)" : "Put the files back where they were (⌘Z)")
             }
             Button { close() } label: { Image(systemName: "xmark") }
                 .buttonStyle(.borderless)
@@ -854,6 +913,12 @@ enum ShotSnapshot {
             }
         case "undodelete": _ = model.window?.tryToPerform(Selector(("undo:")), with: nil)
         case "askdelete": RemovalPrefs.ask = value != "off"
+        case "sampletoast" where value == "putback":
+            let original = Catalog.archiveRoot.appendingPathComponent("2026-07-10 Rivne /RAW/DSCF3119.RAF")
+            let result = PutBackResult(file: TrashedFile(original: original, trashed: nil, size: 1), target: original,
+                                       source: Removal.mobileDocuments.appendingPathComponent(".Trash/DSCF3119.RAF"), failure: .occupied)
+            model.showToast(DeletionToast(title: String(localized: "Could not put back “\(original.lastPathComponent)”"), detail: result.message, failed: true,
+                                          undo: UUID(), icon: "arrow.uturn.backward", reveal: [result], conflict: UUID()))
         case "sampletoast":
             model.showToast(value == "error"
                 ? DeletionToast(title: String(localized: "Could not delete \(1) files"), detail: String(localized: "\(2) files moved to the Trash"), failed: true, details: "-")
