@@ -193,9 +193,10 @@ The "Previews" toolbar button does a lighter version (thumbnails only) for the o
 | T | grid and shot page | mark or unmark "To Phone" |
 | Cmd+T | grid and shot page | tags, people and pets of the selected shots |
 | 6, 7, 8, 9 | grid and shot page | red, yellow, green, blue label; the same key again removes it (purple is in the Label menu) |
-| Cmd+Delete | grid and shot page | "Delete Everywhere…" for the selected shots |
+| Cmd+Delete | grid | "Delete Everywhere…" for the selected shots |
+| Cmd+Delete | shot page | the main version is open: "Delete Whole Shot…"; another version is open: "Delete This Version…", only that file |
 | Cmd+L | grid and shot page | hide the selected shots, or unhide them if they are all hidden |
-| Cmd+Z | grid and shot page | put back the archive files of the last delete |
+| Cmd+Z | grid and shot page | put back the archive files of the last delete; again for the delete before it (up to 20) |
 | Space | grid / shot page | open the shot / back to the grid |
 | ← → ↑ ↓ | grid | move the selection |
 | ← → | shot page | previous / next shot |
@@ -248,12 +249,16 @@ The cover of a day is chosen the same way every time: a favorite or the highest 
 
 ### Deleting
 
-"Delete Everywhere…", "Delete Archive Copy…" and "Delete from Photos…" (Edit menu, shot menu, Cmd+Delete) act on whole shots with all their versions; "Delete…" on the shot page acts on one version. Every delete asks exactly once:
+"Delete Everywhere…", "Delete Archive Copy…" and "Delete from Photos…" (Edit menu, shot menu, Cmd+Delete in the grid) act on whole shots with all their versions.
 
-- **Photos items involved** (alone or together with archive files): the only question is the macOS window "Allow PhotoHub to delete …?". macOS always shows it for a Photos deletion and no app can skip it, so PhotoHub does not add its own. All Photos items of the whole selection go into one request, so there is one window per action, however many shots are selected. Archive files of the same action go to the Trash only after you allow it there; if you cancel, nothing is deleted anywhere.
+On the shot page what goes depends on the version that is open in the strip. With the main version open, Cmd+Delete is "Delete Whole Shot…": all its files. With another version open (a RAW, an edit, a Photos copy), Cmd+Delete is "Delete This Version…": only that file or Photos item; the shot stays with its other versions and the page shows the main version. If it was the last version, the shot disappears and the page moves to the next one. Both commands are in the Edit menu and in the delete button of the version panel; right-clicking a version in the strip offers "Delete This Version…". The question names what goes, for example "Delete RAW version “DSCF7170.RAF”?" or "Delete shot “DSCF7170” (2 files)?".
+
+Every delete asks exactly once:
+
+- **Photos items involved** (alone or together with archive files): the only question is the macOS window "Allow PhotoHub to delete …?". macOS always shows it for a Photos deletion and no app can skip it, so PhotoHub does not add its own; a notice at the bottom names what is being deleted while that window is open. All Photos items of the whole selection go into one request, so there is one window per action, however many shots are selected. Archive files of the same action go to the Trash only after you allow it there; if you cancel, nothing is deleted anywhere.
 - **Archive files only**: PhotoHub shows one confirmation with the shots, how many files go to the Trash and from which folders, the sizes and what stays. Return confirms. With "Don't ask again" the files go to the Trash right away; turn the question back on in Settings → Archive → "Ask before moving archive files to the Trash".
 
-After a delete a short notice at the bottom of the window says what went where, for example "Deleted 3 shots · 5 files moved to the Trash", and closes by itself. The selection moves to the next shot, and the shot page shows the next photo. "Undo" in the notice, or Cmd+Z (Edit → Undo Deletion) while it is the last delete, puts the archive files back where they were and returns them to the catalog. Photos items cannot be put back by an app: restore them in Photos → Recently Deleted ("Open Photos" in the notice); they stay there for 30 days. If something could not be deleted, the notice turns red and "Details" shows why.
+After a delete a short notice at the bottom of the window says what went where, for example "Deleted 3 shots · 5 files moved to the Trash", and closes by itself. The selection moves to the next shot, and the shot page shows the next photo. "Undo" in the notice, or Cmd+Z (Edit → Undo Deletion), puts the archive files back where they were and returns them to the catalog. PhotoHub remembers the last 20 deletes of the session: each Cmd+Z puts back the one before, newest first. Photos items cannot be put back by an app: restore them in Photos → Recently Deleted ("Open Photos" in the notice); they stay there for 30 days. If something could not be deleted, the notice turns red and "Details" shows why.
 
 "Delete Copies from Archive…" and "Delete from Photos, Keep in Archive…" in Photos Copies in Archive follow the same rules, except that deleting originals from Photos asks PhotoHub's own question first when some archive copies are smaller than the originals.
 

@@ -397,5 +397,21 @@
 			<string>%2$lld items</string>
 		</dict>
 	</dict>
+	<key>Delete shot “%@” (%lld files)?</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Delete shot “%1$@” (%2$#@n@)?</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%2$lld file</string>
+			<key>other</key>
+			<string>%2$lld files</string>
+		</dict>
+	</dict>
 </dict>
 </plist>

@@ -388,8 +388,78 @@ enum Removal {
              hasRaw: false, nEdit: 0, nMembers: 0, thumbAsset: "", thumbPath: "", isVideo: false, formats: "", size: 0)
     }
 
-    private static func testMember(_ source: String, _ path: String) -> Member {
-        Member(id: 0, source: source, path: path, name: (path as NSString).lastPathComponent, ext: "", size: 1, role: "photo", taken: "", width: 0, height: 0)
+    private static func testMember(_ source: String, _ path: String, role: String = "photo") -> Member {
+        Member(id: 0, source: source, path: path, name: (path as NSString).lastPathComponent, ext: (path as NSString).pathExtension, size: 1,
+               role: role, taken: "", width: 0, height: 0)
+    }
+
+    private static func runScopeTest(folder: URL, log: (String) -> Void) {
+        let saved = photosDeleter
+        defer { photosDeleter = saved }
+        var asked: [[String]] = []
+        photosDeleter = { ids, done in
+            asked.append(ids)
+            done(.deleted)
+        }
+        let s = testItem("S"), t = testItem("T")
+        let names = ["S.JPG", "S.RAF", "T.JPG", "T.RAF"].map { "_photohub_delete_flow-DSCF\($0)" }
+        let urls = names.map { folder.appendingPathComponent($0) }
+        for url in urls where !exists(url) { try? Data("flow \(url.lastPathComponent)\n".utf8).write(to: url) }
+        func present() -> String { urls.map { exists($0) ? "1" : "0" }.joined() }
+        func stack(_ i: Int) -> [Member] {
+            Versions.ordered([testMember("archive", names[i + 1], role: "raw"), testMember("archive", names[i])], choice: nil, thumbPath: "")
+        }
+        func run(_ plan: RemovalPlan) -> DeletionRecord {
+            let finished = DispatchSemaphore(value: 0)
+            var result = RemovalOutcome()
+            execute(photos: plan.photoIDs, files: plan.archive.map { (url: folder.appendingPathComponent($0.1.path), name: $0.1.name) }) { outcome in
+                result = outcome
+                finished.signal()
+            }
+            _ = finished.wait(timeout: .now() + 120)
+            return DeletionRecord(files: result.trashed.map { (key: plan.archive[$0.index].0.key, path: plan.archive[$0.index].1.path, file: $0.file) },
+                                  backups: [:], label: plan.heading)
+        }
+        var history = DeletionHistory()
+        let sVersions = stack(0)
+        log("scope versions of S: \(sVersions.map { "\($0.name)(\($0.role))" }.joined(separator: ", "))")
+        let raw = RemovalPlan.focused(s, versions: sVersions, index: 1)
+        _ = history.push(run(raw))
+        let rawOK = raw.version?.role == "raw" && raw.archive.map { $0.1.path } == [names[1]] && raw.keptArchive.map { $0.path } == [names[0]]
+            && raw.vanishing == 0 && present() == "1011"
+        log("non-main version: \(raw.heading) | trashed \(raw.archive.map { $0.1.name }) kept \(raw.keptArchive.map { $0.name }) vanishing \(raw.vanishing) present \(present())")
+        log("non-main version scope ok: \(rawOK)")
+        let main = RemovalPlan.focused(t, versions: stack(2), index: 0)
+        _ = history.push(run(main))
+        let mainOK = main.version == nil && main.scope == .everywhere && Set(main.archive.map { $0.1.path }) == Set([names[2], names[3]])
+            && main.vanishing == 1 && present() == "1000"
+        log("main version: \(main.heading) | trashed \(main.archive.map { $0.1.name }) vanishing \(main.vanishing) present \(present())")
+        log("main version scope ok: \(mainOK)")
+        let last = RemovalPlan.focused(s, versions: [testMember("archive", names[0])], index: 0)
+        _ = history.push(run(last))
+        log("last version: \(last.heading) | present \(present())")
+        let photo = RemovalPlan.focused(s, versions: [testMember("archive", names[0]), testMember("photos", "P9/L0/001")], index: 1)
+        log("photos version: \(photo.heading) | photo ids \(photo.photoIDs) archive \(photo.archive.count) kept archive \(photo.keptArchive.count)")
+        let photoOK = photo.photoIDs == ["P9/L0/001"] && photo.archive.isEmpty && photo.keptArchive.count == 1
+        log("photos version scope ok: \(photoOK)")
+        var order: [String] = []
+        var states: [String] = []
+        while let record = history.take(nil) {
+            let errors = record.files.compactMap { putBack($0.file) }
+            order.append(record.files.map { ($0.path as NSString).lastPathComponent }.sorted().joined(separator: "+"))
+            states.append(present() + (errors.isEmpty ? "" : " errors \(errors.count)"))
+        }
+        log("undo order: \(order.joined(separator: " | ")) -> present \(states.joined(separator: ", "))")
+        log("undo history ok: \(states == ["1000", "1011", "1111"] && order.count == 3)")
+        var capped = DeletionHistory()
+        let pushed = (0..<25).map { _ in DeletionRecord(files: [], backups: [:]) }
+        var dropped: [UUID] = []
+        for record in pushed { dropped += capped.push(record).map { $0.id } }
+        let capOK = capped.records.count == DeletionHistory.limit && dropped == pushed.prefix(5).map { $0.id } && capped.records.last?.id == pushed.last?.id
+        log("history cap: kept \(capped.records.count), dropped \(dropped.count), ok: \(capOK)")
+        log("photos asked: \(asked.count)")
+        for url in urls { unlink(url.path) }
+        log("scope files left: \(present())")
     }
 
     private static func runFlowTest(folder: URL, ext: String, log: (String) -> Void) {
@@ -481,6 +551,7 @@ enum Removal {
         }
         if settings["flow"] != nil {
             runFlowTest(folder: folder, ext: ext) { lines.append($0) }
+            runScopeTest(folder: folder) { lines.append($0) }
             lines.append("done")
             return
         }

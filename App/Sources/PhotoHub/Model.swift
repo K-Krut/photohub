@@ -891,6 +891,8 @@ final class Model: ObservableObject {
         return pendingVersion
     }
 
+    func keepVersion(_ path: String) { pendingVersion = path }
+
     private func restore(_ location: Location) {
         var target = location
         if viewing, target.photo == nil, target.scope == scope, let current = selected?.key {

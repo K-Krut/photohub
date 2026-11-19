@@ -130,13 +130,30 @@ struct ShotMenuItems: View {
 
 struct ShotCommands: Commands {
     @ObservedObject var model: Model
+    @ObservedObject var actions = ShotActions.shared
 
     var body: some Commands {
         CommandGroup(after: .pasteboard) {
             Divider()
-            Button("Delete Everywhere…", action: deleteEverywhere)
-                .keyboardShortcut(.delete, modifiers: .command)
-                .disabled(!model.hasTargets || !model.busyTool.isEmpty)
+            if model.viewing, let focus = actions.focus, focus.key == model.selected?.key {
+                if focus.main {
+                    Button("Delete Whole Shot…", action: deleteFocused)
+                        .keyboardShortcut(.delete, modifiers: .command)
+                        .disabled(!model.busyTool.isEmpty)
+                    Button("Delete This Version…") { model.deleteShownVersion() }
+                        .disabled(!model.busyTool.isEmpty)
+                } else {
+                    Button("Delete This Version…", action: deleteFocused)
+                        .keyboardShortcut(.delete, modifiers: .command)
+                        .disabled(!model.busyTool.isEmpty)
+                    Button("Delete Whole Shot…") { model.deleteShownShot() }
+                        .disabled(!model.busyTool.isEmpty)
+                }
+            } else {
+                Button("Delete Everywhere…", action: deleteFocused)
+                    .keyboardShortcut(.delete, modifiers: .command)
+                    .disabled(!model.hasTargets || !model.busyTool.isEmpty)
+            }
             Button("Delete Archive Copy…") { model.askRemoval(.archive) }
                 .disabled(!model.hasTargets || !model.busyTool.isEmpty)
             Button("Delete from Photos…") { model.askRemoval(.photos) }
@@ -164,12 +181,12 @@ struct ShotCommands: Commands {
         }
     }
 
-    private func deleteEverywhere() {
+    private func deleteFocused() {
         if let text = NSApp.keyWindow?.firstResponder as? NSTextView {
             text.deleteToBeginningOfLine(nil)
             return
         }
         guard NSApp.keyWindow == nil || NSApp.keyWindow === model.window else { return }
-        model.askRemoval(.everywhere)
+        model.deleteFocused()
     }
 }

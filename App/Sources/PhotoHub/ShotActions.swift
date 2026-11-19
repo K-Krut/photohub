@@ -28,10 +28,60 @@ struct RemovalPlan: Identifiable {
     let keptPhotos: [Member]
     let vanishing: Int
     var label: String?
+    var version: Member?
 
     var isEmpty: Bool { archive.isEmpty && photos.isEmpty }
     var photoIDs: [String] { Removal.photoBatch(photos.map { $0.1.path }) }
     var asksPhotos: Bool { !photoIDs.isEmpty }
+    var kept: Int { keptArchive.count + keptPhotos.count }
+
+    static func shots(_ scope: RemovalScope, _ stacks: [(Item, [Member])]) -> RemovalPlan {
+        var archive: [(Item, Member)] = [], photos: [(Item, Member)] = []
+        var keptArchive: [Member] = [], keptPhotos: [Member] = []
+        var vanishing = 0
+        for (item, stack) in stacks {
+            let files = stack.filter { $0.source == "archive" }, assets = stack.filter { $0.source == "photos" }
+            if scope.takesArchive { archive += files.map { (item, $0) } } else { keptArchive += files }
+            if scope.takesPhotos { photos += assets.map { (item, $0) } } else { keptPhotos += assets }
+            if !stack.isEmpty && (scope.takesArchive || files.isEmpty) && (scope.takesPhotos || assets.isEmpty) { vanishing += 1 }
+        }
+        return RemovalPlan(scope: scope, items: stacks.map { $0.0 }, archive: archive, photos: photos,
+                           keptArchive: keptArchive, keptPhotos: keptPhotos, vanishing: vanishing)
+    }
+
+    static func version(_ member: Member, of item: Item, stack: [Member]) -> RemovalPlan {
+        let pair = [(item, member)]
+        let archive = member.source == "archive"
+        let rest = stack.filter { $0.source != member.source || $0.path != member.path }
+        return RemovalPlan(scope: archive ? .archive : .photos, items: [item], archive: archive ? pair : [], photos: archive ? [] : pair,
+                           keptArchive: rest.filter { $0.source == "archive" }, keptPhotos: rest.filter { $0.source == "photos" },
+                           vanishing: rest.isEmpty ? 1 : 0, label: member.name, version: member)
+    }
+
+    static func focused(_ item: Item, versions: [Member], index: Int) -> RemovalPlan {
+        if index > 0, versions.indices.contains(index) { return version(versions[index], of: item, stack: versions) }
+        return shots(.everywhere, [(item, versions)])
+    }
+
+    static func versionHeading(_ member: Member) -> String {
+        let name = member.name
+        if member.source == "photos" { return String(localized: "Delete Photos version “\(name)”?") }
+        switch member.role {
+        case "raw": return String(localized: "Delete RAW version “\(name)”?")
+        case "edit": return String(localized: "Delete edited version “\(name)”?")
+        case "export": return String(localized: "Delete copy from Photos “\(name)”?")
+        case "video": return String(localized: "Delete video version “\(name)”?")
+        default: return String(localized: "Delete original version “\(name)”?")
+        }
+    }
+
+    var heading: String {
+        if let version { return RemovalPlan.versionHeading(version) }
+        if items.count == 1, scope == .everywhere, let item = items.first {
+            return String(localized: "Delete shot “\(item.title)” (\(archive.count + photos.count) files)?")
+        }
+        return label.map { String(localized: "Delete “\($0)”?") } ?? scope.title
+    }
 
     static func bytes(_ members: [Member]) -> String {
         ByteCountFormatter.string(fromByteCount: members.reduce(Int64(0)) { $0 + max($1.size, 0) }, countStyle: .file)
@@ -66,7 +116,35 @@ struct DeletionRecord {
     let id = UUID()
     let files: [(key: String, path: String, file: TrashedFile)]
     let backups: [String: ItemBackup]
+    var label = ""
 }
+
+struct DeletionHistory {
+    static let limit = 20
+    private(set) var records: [DeletionRecord] = []
+
+    mutating func push(_ record: DeletionRecord) -> [DeletionRecord] {
+        records.append(record)
+        let extra = max(0, records.count - DeletionHistory.limit)
+        let dropped = Array(records.prefix(extra))
+        records.removeFirst(extra)
+        return dropped
+    }
+
+    mutating func take(_ id: UUID?) -> DeletionRecord? {
+        guard let id else { return records.popLast() }
+        guard let index = records.firstIndex(where: { $0.id == id }) else { return nil }
+        return records.remove(at: index)
+    }
+}
+
+struct VersionFocus: Equatable {
+    let key: String
+    let member: Member
+    let main: Bool
+}
+
+final class DeletionUndoTarget {}
 
 enum RemovalPrefs {
     static let askKey = "askBeforeTrashingArchiveFiles"
@@ -94,7 +172,10 @@ final class ShotActions: ObservableObject {
     @Published var tagging: [Item] = []
     @Published var moving: [Item] = []
     @Published var toast: DeletionToast?
-    var lastDeletion: DeletionRecord?
+    @Published var focus: VersionFocus?
+    var history = DeletionHistory()
+    var undoTargets: [UUID: DeletionUndoTarget] = [:]
+    var restoring: [DeletionRecord] = []
 }
 
 extension Model {
@@ -111,17 +192,7 @@ extension Model {
     }
 
     func removalPlan(_ scope: RemovalScope, _ items: [Item]) -> RemovalPlan {
-        var archive: [(Item, Member)] = [], photos: [(Item, Member)] = []
-        var keptArchive: [Member] = [], keptPhotos: [Member] = []
-        var vanishing = 0
-        for item in items {
-            let stack = members(of: item)
-            let files = stack.filter { $0.source == "archive" }, assets = stack.filter { $0.source == "photos" }
-            if scope.takesArchive { archive += files.map { (item, $0) } } else { keptArchive += files }
-            if scope.takesPhotos { photos += assets.map { (item, $0) } } else { keptPhotos += assets }
-            if !stack.isEmpty && (scope.takesArchive || files.isEmpty) && (scope.takesPhotos || assets.isEmpty) { vanishing += 1 }
-        }
-        return RemovalPlan(scope: scope, items: items, archive: archive, photos: photos, keptArchive: keptArchive, keptPhotos: keptPhotos, vanishing: vanishing)
+        RemovalPlan.shots(scope, items.map { ($0, members(of: $0)) })
     }
 
     func askRemoval(_ scope: RemovalScope, _ items: [Item]? = nil) {
@@ -131,12 +202,37 @@ extension Model {
     }
 
     func askRemoval(_ member: Member, of item: Item) {
-        let stack = members(of: item)
-        let pair = [(item, member)]
-        let archive = member.source == "archive"
-        request(RemovalPlan(scope: archive ? .archive : .photos, items: [item], archive: archive ? pair : [], photos: archive ? [] : pair,
-                            keptArchive: stack.filter { $0.source == "archive" && $0 != member }, keptPhotos: stack.filter { $0.source == "photos" && $0 != member },
-                            vanishing: stack.count <= 1 ? 1 : 0, label: member.name))
+        request(RemovalPlan.version(member, of: item, stack: members(of: item)))
+    }
+
+    var shownShot: Item? {
+        guard viewing, let item = selected else { return nil }
+        return item
+    }
+
+    private var shownPage: (Item, PageState)? {
+        guard let item = shownShot, let page, page.item?.key == item.key, !page.versions.isEmpty else { return nil }
+        return (item, page)
+    }
+
+    func deleteFocused() {
+        if let (item, page) = shownPage {
+            request(RemovalPlan.focused(item, versions: page.versions, index: page.index))
+        } else if let item = shownShot {
+            askRemoval(.everywhere, [item])
+        } else {
+            askRemoval(.everywhere)
+        }
+    }
+
+    func deleteShownVersion() {
+        guard let (item, page) = shownPage, let member = page.current else { return }
+        request(RemovalPlan.version(member, of: item, stack: page.versions))
+    }
+
+    func deleteShownShot() {
+        guard let item = shownShot else { return }
+        askRemoval(.everywhere, [item])
     }
 
     func request(_ plan: RemovalPlan) {
@@ -144,6 +240,12 @@ extension Model {
         if plan.isEmpty {
             showToast(DeletionToast(title: String(localized: "Nothing to delete for this choice.")))
         } else if plan.asksPhotos || !RemovalPrefs.ask {
+            if plan.asksPhotos {
+                let detail = plan.version != nil && plan.kept > 0
+                    ? String(localized: "Confirm in the Photos window. Only this version is deleted, the shot keeps its other versions: \(plan.kept).")
+                    : String(localized: "Confirm in the Photos window.")
+                showToast(DeletionToast(title: plan.heading, detail: detail, icon: "photo.on.rectangle"))
+            }
             performRemoval(plan)
         } else {
             ShotActions.shared.removal = plan
@@ -198,6 +300,13 @@ extension Model {
         if let label = plan.label, plan.archive.count + plan.photos.count == 1 {
             toast.title = String(localized: "Deleted “\(label)”")
             toast.detail = parts.joined(separator: " · ")
+            if plan.version != nil, let item = plan.items.first, !keys.isEmpty {
+                let left = members(of: item).count
+                if left > 0 { toast.detail = [toast.detail, String(localized: "The shot keeps its other versions: \(left).")].filter { !$0.isEmpty }.joined(separator: "\n") }
+            }
+        } else if gone == 1, plan.items.count == 1, let item = plan.items.first {
+            toast.title = String(localized: "Deleted shot “\(item.title)”")
+            toast.detail = parts.joined(separator: " · ")
         } else if gone > 0 {
             toast.title = String(localized: "Deleted \(gone) shots")
             toast.detail = parts.joined(separator: " · ")
@@ -212,19 +321,26 @@ extension Model {
             if parts.isEmpty { toast.title = failed } else { toast.detail = [toast.detail.isEmpty ? toast.title : toast.detail, failed].joined(separator: "\n") }
             toast.details = outcome.failures.map { $0.message }.joined(separator: "\n\n")
         }
-        let undo = ShotActions.shared
-        window?.undoManager?.removeAllActions(withTarget: undo)
-        undo.lastDeletion = nil
         if !trashed.isEmpty {
-            let record = DeletionRecord(files: trashed.map { (key: $0.0.0.key, path: $0.0.1.path, file: $0.1) }, backups: backups)
-            undo.lastDeletion = record
+            let record = DeletionRecord(files: trashed.map { (key: $0.0.0.key, path: $0.0.1.path, file: $0.1) }, backups: backups, label: plan.label ?? plan.names)
+            remember(record)
             toast.undo = record.id
-            if let manager = window?.undoManager {
-                manager.registerUndo(withTarget: undo) { _ in MainActor.assumeIsolated { self.undoDeletion(record.id) } }
-                manager.setActionName(String(localized: "Deletion"))
-            }
         }
         showToast(toast)
+    }
+
+    private func remember(_ record: DeletionRecord) {
+        let actions = ShotActions.shared
+        for old in actions.history.push(record) { forgetUndo(old.id) }
+        guard let manager = window?.undoManager else { return }
+        let target = DeletionUndoTarget()
+        actions.undoTargets[record.id] = target
+        manager.registerUndo(withTarget: target) { _ in MainActor.assumeIsolated { self.undoDeletion(record.id, fromUndoManager: true) } }
+        manager.setActionName(String(localized: "Deletion"))
+    }
+
+    private func forgetUndo(_ id: UUID) {
+        if let target = ShotActions.shared.undoTargets.removeValue(forKey: id) { window?.undoManager?.removeAllActions(withTarget: target) }
     }
 
     func settle(after anchor: Int?) {
@@ -242,15 +358,26 @@ extension Model {
         }
     }
 
-    func undoDeletion(_ id: UUID? = nil) {
+    func undoDeletion(_ id: UUID? = nil, fromUndoManager: Bool = false) {
         let actions = ShotActions.shared
-        guard let record = actions.lastDeletion, id == nil || record.id == id else { return }
+        guard let record = actions.history.take(id) else { return }
+        if fromUndoManager {
+            actions.undoTargets[record.id] = nil
+        } else {
+            forgetUndo(record.id)
+        }
+        actions.restoring.append(record)
+        putBackNext()
+    }
+
+    private func putBackNext() {
+        let actions = ShotActions.shared
+        guard !actions.restoring.isEmpty else { return }
         guard busyTool.isEmpty else {
-            showToast(DeletionToast(title: String(localized: "Wait until “\(busyTool)” finishes."), failed: true))
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self.putBackNext() }
             return
         }
-        actions.lastDeletion = nil
-        window?.undoManager?.removeAllActions(withTarget: actions)
+        let record = actions.restoring.removeFirst()
         busyTool = String(localized: "Putting files back…")
         DispatchQueue.global(qos: .userInitiated).async {
             let results = record.files.map { ($0, Removal.putBack($0.file)) }
@@ -263,6 +390,7 @@ extension Model {
                     if let backup = record.backups[key] { self.catalog?.restore(backup, paths: set) }
                 }
                 let wasViewing = self.viewing
+                if wasViewing, paths.count == 1, back.count == 1, let path = back.first?.path { self.keepVersion(path) }
                 self.reload()
                 let restored = self.flat.filter { paths[$0.key] != nil }
                 if let first = restored.first {
@@ -273,6 +401,7 @@ extension Model {
                 }
                 let failures = results.compactMap { pair in pair.1.map { "\(pair.0.file.original.lastPathComponent): \($0.localizedDescription)" } }
                 var toast = DeletionToast(title: String(localized: "Put back \(back.count) files"), icon: "arrow.uturn.backward")
+                if !record.label.isEmpty { toast.detail = String(localized: "Undid deleting “\(record.label)”") }
                 if !failures.isEmpty {
                     toast.failed = true
                     toast.detail = String(localized: "Could not put back \(failures.count) files. They are still in the Trash.")
@@ -280,6 +409,7 @@ extension Model {
                     if back.isEmpty { toast.title = toast.detail; toast.detail = "" }
                 }
                 self.showToast(toast)
+                self.putBackNext()
             }
         }
     }
@@ -385,9 +515,8 @@ struct RemovalSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Label(plan.label.map { String(localized: "Delete “\($0)”?") } ?? plan.scope.title, systemImage: "trash").font(.title2.bold())
-            Text("Selected items: \(plan.items.count) — \(plan.names)")
-                .foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            Label(plan.heading, systemImage: "trash").font(.title2.bold()).fixedSize(horizontal: false, vertical: true)
+            Text(subtitle).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             section("externaldrive", String(localized: "Archive"), archiveLines)
             section("photo.on.rectangle", String(localized: "Photos"), photosLines)
             if plan.vanishing > 0 {
@@ -415,20 +544,28 @@ struct RemovalSheet: View {
         .frame(width: 540)
     }
 
+    private var subtitle: String {
+        guard plan.version != nil, let item = plan.items.first else { return String(localized: "Selected items: \(plan.items.count) — \(plan.names)") }
+        return plan.kept > 0 ? String(localized: "Only this version is deleted. The shot “\(item.title)” keeps its other versions: \(plan.kept).")
+            : String(localized: "This is the last version of the shot “\(item.title)”.")
+    }
+
     private var archiveLines: [String] {
-        if plan.scope.takesArchive {
-            guard !plan.archive.isEmpty else { return [String(localized: "No archive files.")] }
+        var lines: [String] = []
+        if plan.scope.takesArchive, !plan.archive.isEmpty {
             let members = plan.archive.map { $0.1 }
-            return [String(localized: "To the Trash: \(members.count) files, \(RemovalPlan.bytes(members))."),
-                    String(localized: "Folders: \(plan.folders)."),
-                    String(localized: "Files in iCloud Drive go to Recently Deleted in iCloud Drive. Undo (⌘Z) puts them back.")]
+            lines = [String(localized: "To the Trash: \(members.count) files, \(RemovalPlan.bytes(members))."),
+                     String(localized: "Folders: \(plan.folders)."),
+                     String(localized: "Files in iCloud Drive go to Recently Deleted in iCloud Drive. Undo (⌘Z) puts them back.")]
         }
-        return plan.keptArchive.isEmpty ? [String(localized: "No archive files.")]
-            : [String(localized: "Stay in the archive: \(plan.keptArchive.count) files, \(RemovalPlan.bytes(plan.keptArchive)).")]
+        if !plan.keptArchive.isEmpty {
+            lines.append(String(localized: "Stay in the archive: \(plan.keptArchive.count) files, \(RemovalPlan.bytes(plan.keptArchive))."))
+        }
+        return lines.isEmpty ? [String(localized: "No archive files.")] : lines
     }
 
     private var photosLines: [String] {
-        plan.scope.takesPhotos || plan.keptPhotos.isEmpty ? [String(localized: "No copies in Photos.")]
+        plan.keptPhotos.isEmpty ? [String(localized: "No copies in Photos.")]
             : [String(localized: "Stay in Photos: \(plan.keptPhotos.count) items, \(RemovalPlan.bytes(plan.keptPhotos)).")]
     }
 
@@ -687,6 +824,29 @@ enum ShotSnapshot {
         case "delete": model.askRemoval(RemovalScope(rawValue: value) ?? .everywhere)
         case "deleteversion":
             if let item = model.selected, let page = model.page, page.versions.indices.contains(page.index) { model.askRemoval(page.versions[page.index], of: item) }
+        case "deletefocused": model.deleteFocused()
+        case "cmdkey":
+            let keys: [String: (String, UInt16)] = ["delete": ("\u{8}", 51), "z": ("z", 6)]
+            if let (characters, code) = keys[value],
+               let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: .command, timestamp: ProcessInfo.processInfo.systemUptime,
+                                            windowNumber: model.window?.windowNumber ?? 0, context: nil, characters: characters,
+                                            charactersIgnoringModifiers: characters, isARepeat: false, keyCode: code) {
+                for case let menu? in NSApp.mainMenu?.items.map(\.submenu) ?? [] {
+                    menu.delegate?.menuNeedsUpdate?(menu)
+                    menu.update()
+                }
+                NSApp.postEvent(event, atStart: false)
+            }
+        case "version":
+            if let page = model.page, let index = page.versions.firstIndex(where: { $0.role == value || $0.ext.lowercased() == value.lowercased() }) { page.index = index }
+        case "fakephotos":
+            Removal.photosDeleter = { _, done in DispatchQueue.main.asyncAfter(deadline: .now() + 20) { done(.cancelled) } }
+        case "photosversion":
+            if let item = model.selected, let page = model.page {
+                let asset = Member(id: -1, source: "photos", path: "SNAPSHOT-ASSET/L0/001", name: "IMG_7170.HEIC", ext: "heic", size: 2_400_000,
+                                   role: "photo", taken: "", width: 4032, height: 3024)
+                model.request(RemovalPlan.version(asset, of: item, stack: page.versions + [asset]))
+            }
         case "confirmdelete":
             if let plan = ShotActions.shared.removal {
                 ShotActions.shared.removal = nil
@@ -707,7 +867,10 @@ enum ShotSnapshot {
                          "toast: \(toast.map { "\($0.title) | \($0.detail) | failed=\($0.failed) undo=\($0.undo != nil) photos=\($0.photos)" } ?? "-")",
                          "undo: \(model.window?.undoManager?.canUndo == true ? model.window?.undoManager?.undoMenuItemTitle ?? "" : "-")",
                          "undo: handled by \(undoHandler(model.window))",
-                         "pending put-back: \(ShotActions.shared.lastDeletion?.files.map { "\($0.path) <- \($0.file.trashed?.path ?? "?")" }.joined(separator: ", ") ?? "-")"]
+                         "sheet title: \(ShotActions.shared.removal?.heading ?? "-")",
+                         "focus: \(ShotActions.shared.focus.map { "\($0.member.name) main=\($0.main)" } ?? "-")",
+                         "undo history: \(ShotActions.shared.history.records.map { $0.files.map { ($0.path as NSString).lastPathComponent }.joined(separator: "+") }.joined(separator: ", "))",
+                         "page versions: \(model.viewing ? (model.page?.versions.map { $0.name }.joined(separator: ", ") ?? "-") : "-")"]
             for item in model.targets() {
                 lines.append("target \(item.title): " + model.members(of: item).map { "\($0.source):\($0.path) exists=\($0.source == "archive" ? FileManager.default.fileExists(atPath: Catalog.archiveRoot.appendingPathComponent($0.path).path) : true)" }.joined(separator: ", "))
             }

@@ -320,7 +320,7 @@ final class ImageLoader: ObservableObject {
 final class PageState: ObservableObject {
     @Published var item: Item?
     @Published var versions: [Member] = []
-    @Published var index = 0
+    @Published var index = 0 { didSet { publishFocus() } }
     @Published var compare = false
     @Published var metas: [String: FileMeta] = [:]
     @Published var collections: [(title: String, icon: String, scope: Scope)] = []
@@ -348,6 +348,11 @@ final class PageState: ObservableObject {
         metas = found
         collections = model.collections(of: item)
         index = keep.flatMap { path in versions.firstIndex { $0.path == path } } ?? 0
+    }
+
+    func publishFocus() {
+        let focus = item.flatMap { item in current.map { VersionFocus(key: item.key, member: $0, main: index == 0) } }
+        if ShotActions.shared.focus != focus { ShotActions.shared.focus = focus }
     }
 
     func pixels(_ member: Member) -> CGSize {
@@ -595,6 +600,7 @@ struct PhotoPage: View {
             if model.page === state {
                 model.page = nil
                 model.pageKeys = nil
+                ShotActions.shared.focus = nil
             }
         }
     }
@@ -664,6 +670,13 @@ struct PhotoPage: View {
                         .contentShape(Rectangle())
                         .onTapGesture { state.index = index }
                         .help(member.name)
+                        .contextMenu {
+                            Button("Delete This Version…") { model.askRemoval(member, of: item) }
+                                .disabled(!model.busyTool.isEmpty)
+                            if index != 0 {
+                                Button("Make Main") { model.setMain(item, member) }
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 14).padding(.vertical, 10)
@@ -784,15 +797,41 @@ struct PhotoPage: View {
                 Label("Photos library", systemImage: "photo.on.rectangle").font(.caption).foregroundStyle(.secondary)
                 Button("Show in Photos") { model.showInPhotos(member) }.controlSize(.small)
             }
-            HStack {
-                if state.index != 0 {
-                    Button { model.setMain(item, member) } label: { Label("Make Main", systemImage: "star") }
+            ViewThatFits(in: .horizontal) {
+                HStack {
+                    makeMain(member)
+                    deleteMenu(member)
                 }
-                Button(role: .destructive) { model.askRemoval(member, of: item) } label: { Label("Delete…", systemImage: "trash") }
-                    .disabled(!model.busyTool.isEmpty)
-                if !model.busyTool.isEmpty { ProgressView().controlSize(.small) }
+                VStack(alignment: .leading, spacing: 6) {
+                    makeMain(member)
+                    deleteMenu(member)
+                }
             }
             .controlSize(.small)
+        }
+    }
+
+    @ViewBuilder private func makeMain(_ member: Member) -> some View {
+        if state.index != 0 {
+            Button { model.setMain(item, member) } label: { Label("Make Main", systemImage: "star") }
+                .fixedSize()
+        }
+    }
+
+    private func deleteMenu(_ member: Member) -> some View {
+        HStack {
+            Menu {
+                Button("Delete This Version…") { model.askRemoval(member, of: item) }
+                Button("Delete Whole Shot…") { model.deleteShownShot() }
+            } label: {
+                Label(state.index == 0 ? String(localized: "Delete Whole Shot…") : String(localized: "Delete This Version…"), systemImage: "trash")
+            } primaryAction: {
+                model.deleteFocused()
+            }
+            .fixedSize()
+            .help(state.index == 0 ? String(localized: "Deletes every version of the shot (⌘⌫)") : String(localized: "Deletes only this version (⌘⌫)"))
+            .disabled(!model.busyTool.isEmpty)
+            if !model.busyTool.isEmpty { ProgressView().controlSize(.small) }
         }
     }
 

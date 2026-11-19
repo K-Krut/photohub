@@ -115,7 +115,9 @@ if (( UI )); then
   [[ -f "$REPORT" ]] || { print -u2 "no self-test report"; exit 1; }
   failed=0
   for expected in "accepted put back: 3 of 3, present 111, same content true" \
-      "archive only put back: 3 of 3, present 111, same content true" "left in archive: 000" "done"; do
+      "archive only put back: 3 of 3, present 111, same content true" "left in archive: 000" \
+      "non-main version scope ok: true" "main version scope ok: true" "photos version scope ok: true" \
+      "undo history ok: true" "history cap: kept 20, dropped 5, ok: true" "scope files left: 0000" "done"; do
     grep -qF "$expected" "$REPORT" || { print -u2 "missing in the report: $expected"; failed=1; }
   done
   [[ -s "$WORK/shot-1.png" ]] || { print -u2 "the app did not capture its window"; failed=1; }
