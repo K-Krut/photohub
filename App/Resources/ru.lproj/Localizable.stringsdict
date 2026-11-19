@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld кадр</string>
+			<key>few</key>
+			<string>%lld кадра</string>
+			<key>many</key>
+			<string>%lld кадров</string>
+			<key>other</key>
+			<string>%lld кадра</string>
+		</dict>
+	</dict>
+	<key>%lld years ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld год назад</string>
+			<key>few</key>
+			<string>%lld года назад</string>
+			<key>many</key>
+			<string>%lld лет назад</string>
+			<key>other</key>
+			<string>%lld года назад</string>
+		</dict>
+	</dict>
+	<key>To the Trash: %lld copies from the archive, %@. iCloud Drive files go to Recently Deleted in iCloud Drive, where they can be restored.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>В Корзину: %1$#@n@ из архива, %2$@. Файлы iCloud Drive попадают в «Недавно удалённые» iCloud Drive, оттуда их можно вернуть.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld копия</string>
+			<key>few</key>
+			<string>%1$lld копии</string>
+			<key>many</key>
+			<string>%1$lld копий</string>
+			<key>other</key>
+			<string>%1$lld копии</string>
+		</dict>
+	</dict>
+	<key>Staying in Photos: %lld originals, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Остаются в «Фото»: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld оригинал</string>
+			<key>few</key>
+			<string>%1$lld оригинала</string>
+			<key>many</key>
+			<string>%1$lld оригиналов</string>
+			<key>other</key>
+			<string>%1$lld оригинала</string>
+		</dict>
+	</dict>
+	<key>From Photos to Recently Deleted: %lld items, %@. Photos will show its own confirmation window; for 30 days the items can be restored from Recently Deleted.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Из «Фото» в «Недавно удалённые»: %1$#@n@, %2$@. «Фото» покажут своё окно подтверждения; 30 дней кадры можно вернуть из «Недавно удалённых».</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld кадр</string>
+			<key>few</key>
+			<string>%1$lld кадра</string>
+			<key>many</key>
+			<string>%1$lld кадров</string>
+			<key>other</key>
+			<string>%1$lld кадра</string>
+		</dict>
+	</dict>
+	<key>Staying in the archive: %lld copies, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Остаются в архиве: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld копия</string>
+			<key>few</key>
+			<string>%1$lld копии</string>
+			<key>many</key>
+			<string>%1$lld копий</string>
+			<key>other</key>
+			<string>%1$lld копии</string>
+		</dict>
+	</dict>
+	<key>Staying in the archive: %lld copies, %@ (%@).</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Остаются в архиве: %1$#@n@, %2$@ (%3$@).</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld копия</string>
+			<key>few</key>
+			<string>%1$lld копии</string>
+			<key>many</key>
+			<string>%1$lld копий</string>
+			<key>other</key>
+			<string>%1$lld копии</string>
+		</dict>
+	</dict>
+	<key>same trip (%@): %lld items here shot on these days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>та же поездка (%1$@): %2$#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>здесь %2$lld кадр, снятый в эти дни</string>
+			<key>few</key>
+			<string>здесь %2$lld кадра, снятых в эти дни</string>
+			<key>many</key>
+			<string>здесь %2$lld кадров, снятых в эти дни</string>
+			<key>other</key>
+			<string>здесь %2$lld кадра, снятых в эти дни</string>
+		</dict>
+	</dict>
+	<key>%lld archive items here shot on these days (±1 day)</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>здесь %1$lld кадр архива, снятый в эти дни (±1 день)</string>
+			<key>few</key>
+			<string>здесь %1$lld кадра архива, снятых в эти дни (±1 день)</string>
+			<key>many</key>
+			<string>здесь %1$lld кадров архива, снятых в эти дни (±1 день)</string>
+			<key>other</key>
+			<string>здесь %1$lld кадра архива, снятых в эти дни (±1 день)</string>
+		</dict>
+	</dict>
+	<key>“%@”: the size is %lld bytes, but %lld bytes in Photos.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>«%1$@»: размер %2$#@a@, а в «Фото» %3$#@b@.</string>
+		<key>a</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%2$lld байт</string>
+			<key>few</key>
+			<string>%2$lld байта</string>
+			<key>many</key>
+			<string>%2$lld байт</string>
+			<key>other</key>
+			<string>%2$lld байта</string>
+		</dict>
+		<key>b</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%3$lld байт</string>
+			<key>few</key>
+			<string>%3$lld байта</string>
+			<key>many</key>
+			<string>%3$lld байт</string>
+			<key>other</key>
+			<string>%3$lld байта</string>
+		</dict>
+	</dict>
+	<key>To the Trash: %lld files, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>В Корзину: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld файл</string>
+			<key>few</key>
+			<string>%1$lld файла</string>
+			<key>many</key>
+			<string>%1$lld файлов</string>
+			<key>other</key>
+			<string>%1$lld файла</string>
+		</dict>
+	</dict>
+	<key>Stay in the archive: %lld files, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Остаются в архиве: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld файл</string>
+			<key>few</key>
+			<string>%1$lld файла</string>
+			<key>many</key>
+			<string>%1$lld файлов</string>
+			<key>other</key>
+			<string>%1$lld файла</string>
+		</dict>
+	</dict>
+	<key>%lld files moved to the Trash</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@ — в Корзине</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld файл</string>
+			<key>few</key>
+			<string>%lld файла</string>
+			<key>many</key>
+			<string>%lld файлов</string>
+			<key>other</key>
+			<string>%lld файла</string>
+		</dict>
+	</dict>
+	<key>%lld items moved to Recently Deleted in Photos</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@ — в «Недавно удалённых» «Фото»</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld кадр</string>
+			<key>few</key>
+			<string>%lld кадра</string>
+			<key>many</key>
+			<string>%lld кадров</string>
+			<key>other</key>
+			<string>%lld кадра</string>
+		</dict>
+	</dict>
+	<key>Deleted %lld shots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Удалено: %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld кадр</string>
+			<key>few</key>
+			<string>%lld кадра</string>
+			<key>many</key>
+			<string>%lld кадров</string>
+			<key>other</key>
+			<string>%lld кадра</string>
+		</dict>
+	</dict>
+	<key>Could not delete %lld files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Не удалось удалить %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld файл</string>
+			<key>few</key>
+			<string>%lld файла</string>
+			<key>many</key>
+			<string>%lld файлов</string>
+			<key>other</key>
+			<string>%lld файла</string>
+		</dict>
+	</dict>
+	<key>Put back %lld files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Возвращено на место: %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld файл</string>
+			<key>few</key>
+			<string>%lld файла</string>
+			<key>many</key>
+			<string>%lld файлов</string>
+			<key>other</key>
+			<string>%lld файла</string>
+		</dict>
+	</dict>
+	<key>Could not put back %lld files. They are still in the Trash.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Не удалось вернуть %lld файл — он остался в Корзине.</string>
+			<key>few</key>
+			<string>Не удалось вернуть %lld файла — они остались в Корзине.</string>
+			<key>many</key>
+			<string>Не удалось вернуть %lld файлов — они остались в Корзине.</string>
+			<key>other</key>
+			<string>Не удалось вернуть %lld файла — они остались в Корзине.</string>
+		</dict>
+	</dict>
+	<key>Stay in Photos: %lld items, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Остаются в «Фото»: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld кадр</string>
+			<key>few</key>
+			<string>%1$lld кадра</string>
+			<key>many</key>
+			<string>%1$lld кадров</string>
+			<key>other</key>
+			<string>%1$lld кадра</string>
+		</dict>
+	</dict>
+	<key>Move %lld Files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Переместить %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld файл</string>
+			<key>few</key>
+			<string>%lld файла</string>
+			<key>many</key>
+			<string>%lld файлов</string>
+			<key>other</key>
+			<string>%lld файла</string>
+		</dict>
+	</dict>
+	<key>%lld shots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld кадр</string>
+			<key>few</key>
+			<string>%lld кадра</string>
+			<key>many</key>
+			<string>%lld кадров</string>
+			<key>other</key>
+			<string>%lld кадра</string>
+		</dict>
+	</dict>
+	<key>%lld days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld день</string>
+			<key>few</key>
+			<string>%lld дня</string>
+			<key>many</key>
+			<string>%lld дней</string>
+			<key>other</key>
+			<string>%lld дня</string>
+		</dict>
+	</dict>
+	<key>%lld hidden items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld скрытый кадр</string>
+			<key>few</key>
+			<string>%lld скрытых кадра</string>
+			<key>many</key>
+			<string>%lld скрытых кадров</string>
+			<key>other</key>
+			<string>%lld скрытого кадра</string>
+		</dict>
+	</dict>
+	<key>On %lld of %lld items. Click to add to all.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Есть на %1$lld из %2$#@n@. Нажмите, чтобы добавить ко всем.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%2$lld кадра</string>
+			<key>few</key>
+			<string>%2$lld кадров</string>
+			<key>many</key>
+			<string>%2$lld кадров</string>
+			<key>other</key>
+			<string>%2$lld кадра</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

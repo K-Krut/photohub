@@ -1,0 +1,4 @@
+"NSPhotoLibraryUsageDescription" = "PhotoHub shows items from the Photos library next to the archive.";
+"NSAppleEventsUsageDescription" = "PhotoHub opens the chosen item in the Photos app and asks Finder to move archive files that are only in iCloud to the Trash.";
+"NSDesktopFolderUsageDescription" = "PhotoHub shows the archive if it is in the Desktop folder.";
+"NSDocumentsFolderUsageDescription" = "PhotoHub shows the archive if it is in the Documents folder.";

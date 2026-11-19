@@ -1,0 +1,15 @@
+"Calendar" = "Календарь";
+"Day" = "День";
+"Week" = "Неделя";
+"Month" = "Месяц";
+"Year" = "Год";
+"Today" = "Сегодня";
+"Previous" = "Назад";
+"Next" = "Вперёд";
+"Jump to a month or year" = "Перейти к месяцу или году";
+"Zoom with ⌘= and ⌘− or pinch the trackpad" = "Масштаб: ⌘= и ⌘− или щипок на трекпаде";
+"No shots" = "Нет кадров";
+"No shots on this day" = "В этот день нет кадров";
+"No shots from %@ to %@" = "Нет кадров с %1$@ по %2$@";
+"%@ · without an exact date" = "%@ · без точной даты";
+"Shots from this year whose day is not known" = "Кадры этого года, у которых неизвестен день";

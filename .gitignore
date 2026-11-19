@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+.build/
+.swiftpm/
+*.sqlite
+*.sqlite-*
+.DS_Store
+.idea/
+releases/
+docs/ru/
+scripts/local.env

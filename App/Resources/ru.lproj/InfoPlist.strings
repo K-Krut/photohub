@@ -1,0 +1,4 @@
+"NSPhotoLibraryUsageDescription" = "PhotoHub показывает кадры из библиотеки «Фото» рядом с архивом.";
+"NSAppleEventsUsageDescription" = "PhotoHub открывает выбранный кадр в приложении «Фото» и просит Finder переместить в Корзину файлы архива, которые лежат только в iCloud.";
+"NSDesktopFolderUsageDescription" = "PhotoHub показывает архив, если он лежит в папке «Рабочий стол».";
+"NSDocumentsFolderUsageDescription" = "PhotoHub показывает архив, если он лежит в папке «Документы».";

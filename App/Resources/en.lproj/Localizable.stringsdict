@@ -1,0 +1,401 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>%lld items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item</string>
+			<key>other</key>
+			<string>%lld items</string>
+		</dict>
+	</dict>
+	<key>%lld years ago</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld year ago</string>
+			<key>other</key>
+			<string>%lld years ago</string>
+		</dict>
+	</dict>
+	<key>To the Trash: %lld copies from the archive, %@. iCloud Drive files go to Recently Deleted in iCloud Drive, where they can be restored.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>To the Trash: %1$#@n@ from the archive, %2$@. iCloud Drive files go to Recently Deleted in iCloud Drive, where they can be restored.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld copy</string>
+			<key>other</key>
+			<string>%1$lld copies</string>
+		</dict>
+	</dict>
+	<key>Staying in Photos: %lld originals, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Staying in Photos: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld original</string>
+			<key>other</key>
+			<string>%1$lld originals</string>
+		</dict>
+	</dict>
+	<key>From Photos to Recently Deleted: %lld items, %@. Photos will show its own confirmation window; for 30 days the items can be restored from Recently Deleted.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>From Photos to Recently Deleted: %1$#@n@, %2$@. Photos will show its own confirmation window; for 30 days the items can be restored from Recently Deleted.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld item</string>
+			<key>other</key>
+			<string>%1$lld items</string>
+		</dict>
+	</dict>
+	<key>Staying in the archive: %lld copies, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Staying in the archive: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld copy</string>
+			<key>other</key>
+			<string>%1$lld copies</string>
+		</dict>
+	</dict>
+	<key>Staying in the archive: %lld copies, %@ (%@).</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Staying in the archive: %1$#@n@, %2$@ (%3$@).</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld copy</string>
+			<key>other</key>
+			<string>%1$lld copies</string>
+		</dict>
+	</dict>
+	<key>same trip (%@): %lld items here shot on these days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>same trip (%1$@): %2$#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%2$lld item here shot on these days</string>
+			<key>other</key>
+			<string>%2$lld items here shot on these days</string>
+		</dict>
+	</dict>
+	<key>%lld archive items here shot on these days (±1 day)</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%1$#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld archive item here shot on these days (±1 day)</string>
+			<key>other</key>
+			<string>%1$lld archive items here shot on these days (±1 day)</string>
+		</dict>
+	</dict>
+	<key>“%@”: the size is %lld bytes, but %lld bytes in Photos.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>“%1$@”: the size is %2$#@a@, but %3$#@b@ in Photos.</string>
+		<key>a</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%2$lld byte</string>
+			<key>other</key>
+			<string>%2$lld bytes</string>
+		</dict>
+		<key>b</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%3$lld byte</string>
+			<key>other</key>
+			<string>%3$lld bytes</string>
+		</dict>
+	</dict>
+	<key>To the Trash: %lld files, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>To the Trash: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld file</string>
+			<key>other</key>
+			<string>%1$lld files</string>
+		</dict>
+	</dict>
+	<key>Stay in the archive: %lld files, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Stay in the archive: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld file</string>
+			<key>other</key>
+			<string>%1$lld files</string>
+		</dict>
+	</dict>
+	<key>%lld files moved to the Trash</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld file moved to the Trash</string>
+			<key>other</key>
+			<string>%lld files moved to the Trash</string>
+		</dict>
+	</dict>
+	<key>%lld items moved to Recently Deleted in Photos</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld item moved to Recently Deleted in Photos</string>
+			<key>other</key>
+			<string>%lld items moved to Recently Deleted in Photos</string>
+		</dict>
+	</dict>
+	<key>Deleted %lld shots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Deleted %lld shot</string>
+			<key>other</key>
+			<string>Deleted %lld shots</string>
+		</dict>
+	</dict>
+	<key>Could not delete %lld files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Could not delete %lld file</string>
+			<key>other</key>
+			<string>Could not delete %lld files</string>
+		</dict>
+	</dict>
+	<key>Put back %lld files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Put back %lld file</string>
+			<key>other</key>
+			<string>Put back %lld files</string>
+		</dict>
+	</dict>
+	<key>Could not put back %lld files. They are still in the Trash.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>Could not put back %lld file. It is still in the Trash.</string>
+			<key>other</key>
+			<string>Could not put back %lld files. They are still in the Trash.</string>
+		</dict>
+	</dict>
+	<key>Stay in Photos: %lld items, %@.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Stay in Photos: %1$#@n@, %2$@.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%1$lld item</string>
+			<key>other</key>
+			<string>%1$lld items</string>
+		</dict>
+	</dict>
+	<key>Move %lld Files</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>Move %#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld File</string>
+			<key>other</key>
+			<string>%lld Files</string>
+		</dict>
+	</dict>
+	<key>%lld shots</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld shot</string>
+			<key>other</key>
+			<string>%lld shots</string>
+		</dict>
+	</dict>
+	<key>%lld days</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld day</string>
+			<key>other</key>
+			<string>%lld days</string>
+		</dict>
+	</dict>
+	<key>%lld hidden items</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%lld hidden item</string>
+			<key>other</key>
+			<string>%lld hidden items</string>
+		</dict>
+	</dict>
+	<key>On %lld of %lld items. Click to add to all.</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>On %1$lld of %2$#@n@. Click to add to all.</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>lld</string>
+			<key>one</key>
+			<string>%2$lld item</string>
+			<key>other</key>
+			<string>%2$lld items</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

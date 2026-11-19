@@ -1,0 +1,21 @@
+[project]
+name = "photohub"
+version = "0.1.0"
+description = "Catalog and macOS viewer for a personal photo archive"
+requires-python = ">=3.14"
+dependencies = [
+    "geonamescache>=3.0.2",
+    "pillow>=13.0.0",
+    "pillow-heif>=1.8.1",
+]
+
+[project.scripts]
+photohub = "photohub.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "photohub"
+module-root = "backend"

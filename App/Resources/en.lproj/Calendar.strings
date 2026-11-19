@@ -1,0 +1,15 @@
+"Calendar" = "Calendar";
+"Day" = "Day";
+"Week" = "Week";
+"Month" = "Month";
+"Year" = "Year";
+"Today" = "Today";
+"Previous" = "Previous";
+"Next" = "Next";
+"Jump to a month or year" = "Jump to a month or year";
+"Zoom with ⌘= and ⌘− or pinch the trackpad" = "Zoom with ⌘= and ⌘− or pinch the trackpad";
+"No shots" = "No shots";
+"No shots on this day" = "No shots on this day";
+"No shots from %@ to %@" = "No shots from %1$@ to %2$@";
+"%@ · without an exact date" = "%@ · without an exact date";
+"Shots from this year whose day is not known" = "Shots from this year whose day is not known";
