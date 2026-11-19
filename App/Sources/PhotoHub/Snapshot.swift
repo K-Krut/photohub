@@ -19,17 +19,17 @@ enum Snapshot {
         for (index, step) in steps.enumerated() {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) { apply(step, model) }
             DispatchQueue.main.asyncAfter(deadline: .now() + delay + 3.0) {
-                capture("\(out)-\(index).png", step.hasPrefix("settings") ? NSApp.windows.first { $0 !== model.window && $0.isVisible && $0.frame.width > 300 } : model.window)
+                capture("\(out)-\(index).png", step.hasPrefix("settings") ? NSApp.windows.first { $0 !== model.window && !($0 is StageWindow) && $0.isVisible && $0.frame.width > 300 } : model.window)
                 describe(model, step, "\(out)-\(index).txt")
             }
-            delay += SnapshotOptions.visible ? 6.0 : 4.0
+            delay += SnapshotOptions.staged ? 10.0 : SnapshotOptions.visible ? 6.0 : 4.0
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + delay + 0.5) { exit(0) }
     }
 
     @MainActor
     private static func conceal() {
-        guard !SnapshotOptions.visible else { return }
+        guard !SnapshotOptions.visible || SnapshotOptions.staged && !SnapshotOptions.showing else { return }
         for window in NSApp.windows {
             window.alphaValue = 0
             window.ignoresMouseEvents = true
@@ -134,7 +134,7 @@ enum Snapshot {
                     CollectionLayout.shared.move(from: [index], to: 0)
                 } else if flag.hasPrefix("rowhide=") {
                     CollectionLayout.shared.setVisible(String(flag.dropFirst(8)), false)
-                } else if flag.hasPrefix("step"), let n = Int(flag.dropFirst(4)) { model.step(n) } else if !HiddenSnapshot.apply(flag, model) { ShotSnapshot.apply(flag, model) }
+                } else if flag.hasPrefix("step"), let n = Int(flag.dropFirst(4)) { model.step(n) } else if !HiddenSnapshot.apply(flag, model) && !SnapshotOptions.apply(flag, model) { ShotSnapshot.apply(flag, model) }
             }
         }
     }
@@ -200,10 +200,10 @@ enum Snapshot {
     @MainActor
     private static func capture(_ path: String, _ target: NSWindow?) {
         if SnapshotOptions.visible {
-            SnapshotOptions.announce(path, target ?? NSApp.windows.first { $0.contentView != nil && $0.frame.width > 400 })
+            SnapshotOptions.announce(path, target ?? NSApp.windows.first { $0.contentView != nil && !($0 is StageWindow) && $0.frame.width > 400 })
             return
         }
-        guard let window = target ?? NSApp.windows.first(where: { $0.contentView != nil && $0.frame.width > 400 }),
+        guard let window = target ?? NSApp.windows.first(where: { $0.contentView != nil && !($0 is StageWindow) && $0.frame.width > 400 }),
               let view = window.contentView?.superview ?? window.contentView,
               let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
         view.cacheDisplay(in: view.bounds, to: rep)
