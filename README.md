@@ -23,21 +23,40 @@ PhotoHub is a native macOS app that catalogs what you already have where it alre
 
 **Stacks of versions.** The RAW, the camera JPEG, Lightroom and Photoshop edits, exports and the copy in Photos are one tile. Open it to page through the versions, compare an edit with the original and zoom to 100 %.
 
-![A shot with three versions: the export, the Lightroom edit and the camera JPEG](docs/images/page.png)
+<p>
+  <img src="docs/images/page.png" width="49%" alt="A shot with three versions: two Lightroom edits and the camera JPEG">
+  <img src="docs/images/zoom.png" width="49%" alt="The same shot zoomed to 200 %">
+</p>
 
 **Trips, places and a map.** Trips are detected from where and when you shot: everything away from home in a row becomes one trip, named after its cities.
 
-![The Rome trip](docs/images/trip.png)
-
-![The map of shots with a location](docs/images/map.png)
+<p>
+  <img src="docs/images/trip.png" width="49%" alt="The Rome · Pisa trip with the selected shot in the side panel">
+  <img src="docs/images/map.png" width="49%" alt="The map zoomed to Rome, with a pin for every place a shot was taken">
+</p>
 
 **People and pets.** The people and pets you named in Photos, with "With Me" and "Without Me" filters. A local face model suggests names for archive shots that Photos never saw (preview, command line for now).
 
-![People named in Photos, with "this is me"](docs/images/people.png)
-
 **Labels, ratings and picks, like in Lightroom.** Stars on 1–5, pick and reject on P and X, color labels on 6–9; filter and sort by them, or "Select All with Label". They are stored in PhotoHub's catalog and never written into your files.
 
-![All shots with any color label, grouped by label](docs/images/labels.png)
+<p>
+  <img src="docs/images/people.png" width="49%" alt="People named in Photos, with &quot;this is me&quot;">
+  <img src="docs/images/labels.png" width="49%" alt="All shots with any color label, grouped by label">
+</p>
+
+**Calendar and statistics.** A calendar by day, week, month and year, with a cover for every day you shot and trips drawn as bars under their days. Statistics count shots, files, edits, copies and space, chart shots per year and month, and list the top cameras, lenses, people and places.
+
+<p>
+  <img src="docs/images/calendar.png" width="49%" alt="August 2023 in the calendar, with the Reykjavík trip under its days">
+  <img src="docs/images/statistics.png" width="49%" alt="Statistics: shots per year and per month, and highlights">
+</p>
+
+**Tags and Hidden.** One picker adds tags, people and pets to the selected shots, from the keyboard or with a click. Hide shots or whole folders like the Hidden album in Photos; the Hidden collection opens with Touch ID or your password.
+
+<p>
+  <img src="docs/images/tags.png" width="49%" alt="The tag picker for three selected shots: people, pets and your own tags">
+  <img src="docs/images/hidden.png" width="49%" alt="The Hidden collection, unlocked">
+</p>
 
 **Exact copies and safe deletion.** Byte-identical files are found by their hash. Deleting always shows one confirmation with every file, folder and size involved; archive files go to the Trash (or iCloud Drive's "Recently Deleted"), Photos items go to "Recently Deleted".
 
@@ -48,6 +67,10 @@ PhotoHub is a native macOS app that catalogs what you already have where it alre
 **An agent in the app (optional).** Ask in plain words: "tag these as Portfolio", "move the selected shots to Trips/2025-12 Vienna", "shift the dates of the X100 shots by one hour". Moves and date changes always show a plan first and run only after you say yes. It uses your own Claude Code login.
 
 **English and Russian.** The interface follows the macOS language or the choice in Settings.
+
+<p align="center">
+  <img src="docs/images/settings.png" width="60%" alt="Settings: language, appearance and keyboard shortcuts">
+</p>
 
 ## Who it's for
 
