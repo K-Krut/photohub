@@ -99,6 +99,10 @@ Then:
   - Actions on the results: "This is an edit of this shot" (attach to the stack), "Detach", "Move to this shot's folder" (through a move plan with confirmation), "Open".
   - Manual links are stored separately from the automatic results and are not lost on a catalog rebuild. The automatic results do not overwrite them.
   - The first version uses the dHash fingerprint (scanned archive files already have it). It gets more accurate with the Vision fingerprints from step 6: they find edits with cropping and strong colour correction.
+- A website: a landing page for PhotoHub.
+  - Apple-style product page, dark theme first with a light one second; it shows off the glass interface with the screenshots from `docs/images` (dark and light), a short "why", the features (collections, folders, stacks of versions, trips and the map, people, labels, exact copies and safe deletion, the calendar, recognition, the agent), a privacy section (everything stays on the Mac, nothing is uploaded) and "Get PhotoHub": build from source with `scripts/install.sh`, plus a download once there is a release.
+  - English first; Russian as a second page later.
+  - Static HTML and CSS in its own `site/` folder, no framework and no trackers; it is never bundled into the app. Deployed with GitHub Pages from a workflow that publishes `site/` only.
 
 ## Step 6. Recognition and search
 
