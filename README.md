@@ -97,7 +97,7 @@ See [SECURITY.md](SECURITY.md) for details.
 ## Getting started
 
 ```sh
-git clone <repository-url> photohub && cd photohub
+git clone https://github.com/K-Krut/photohub.git photohub && cd photohub
 scripts/install.sh
 ```
 

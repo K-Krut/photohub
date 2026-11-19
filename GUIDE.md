@@ -27,7 +27,7 @@ How to install, build and run PhotoHub, what it needs from macOS, and how to use
 ## 2. Get the code
 
 ```sh
-git clone <repository-url> photohub
+git clone https://github.com/K-Krut/photohub.git photohub
 cd photohub
 scripts/install.sh
 ```
