@@ -13,12 +13,14 @@ usage: scripts/check.sh [--scratch-path DIR] [--no-ui]
 Checks this checkout without touching your catalog, archive or installed app:
   1. backend/requirements.txt matches uv.lock (when uv is installed)
   2. the Python backend compiles, imports and its photohub command starts
-  3. a debug build of PhotoHub and PhotoHubAnalyzer
-  4. the Removal self-test: a scratch copy of the app ($BUNDLE_ID, ad-hoc) runs
+  3. App/Resources: every .strings and .stringsdict file parses, has no duplicate keys,
+     and en.lproj and ru.lproj have the same keys
+  4. a debug build of PhotoHub and PhotoHubAnalyzer
+  5. the Removal self-test: a scratch copy of the app ($BUNDLE_ID, ad-hoc) runs
      "deletetest:flow" in snapshot mode on a temporary archive and must put every file back
 
   --scratch-path DIR   Swift build folder (default App/.build)
-  --no-ui              skip step 4, for machines without a logged-in GUI session
+  --no-ui              skip step 5, for machines without a logged-in GUI session
 EOF
 }
 
@@ -68,6 +70,28 @@ for command in context sql tag tags hide unhide flag move date copies folders un
   "$ROOT/.venv/bin/photohub" "$command" --help >/dev/null
 done
 print "    ok $("$PY" -c 'import platform; print("Python", platform.python_version())')"
+
+print "==> localization"
+RES="$ROOT/App/Resources"
+strings_keys() { grep -oE '^"([^"\\]|\\.)*"' "$1" | sort; }
+dict_keys() { plutil -convert json -o - "$1" | "$PY" -c 'import json, sys; print("\n".join(sorted(json.load(sys.stdin))))'; }
+for file in "$RES"/*.lproj/*.strings "$RES"/*.lproj/*.stringsdict; do
+  plutil -lint -s "$file" || exit 1
+done
+for file in "$RES"/*.lproj/*.strings; do
+  duplicates="$(strings_keys "$file" | uniq -d)"
+  [[ -z "$duplicates" ]] || { print -u2 "duplicate keys in ${file#$ROOT/}:"; print -u2 -- "$duplicates"; exit 1; }
+done
+for file in "$RES"/en.lproj/*.strings "$RES"/en.lproj/*.stringsdict; do
+  other="$RES/ru.lproj/${file:t}"
+  [[ -f "$other" ]] || { print -u2 "missing ${other#$ROOT/}"; exit 1; }
+  if [[ "$file" == *.strings ]]; then
+    diff <(strings_keys "$file") <(strings_keys "$other") >/dev/null || { print -u2 "en and ru keys differ in ${file:t}:"; diff <(strings_keys "$file") <(strings_keys "$other") >&2; exit 1; }
+  else
+    diff <(dict_keys "$file") <(dict_keys "$other") >/dev/null || { print -u2 "en and ru keys differ in ${file:t}:"; diff <(dict_keys "$file") <(dict_keys "$other") >&2; exit 1; }
+  fi
+done
+print "    ok en.lproj and ru.lproj"
 
 print "==> swift build (debug)"
 swift build --package-path "$ROOT/App" "${scratch_args[@]}" 2>&1 \
