@@ -75,9 +75,10 @@ See [SECURITY.md](SECURITY.md) for details.
 
 ```sh
 git clone <repository-url> photohub && cd photohub
-uv sync
-scripts/build_app.sh
+scripts/install.sh
 ```
+
+The script checks what the Mac needs and says how to fix what is missing, sets up the Python backend, offers a local signing identity so macOS keeps PhotoHub's permissions across rebuilds, builds the app and installs it into `/Applications` (`--user` for `~/Applications`, `--help` for the options). Run it again to update.
 
 Open PhotoHub, choose your archive folder in Settings → Archive and press "Rebuild Catalog". Then make previews with `.venv/bin/photohub scan`. The [GUIDE](GUIDE.md) covers signing, permissions, the first scan, keyboard shortcuts and troubleshooting.
 

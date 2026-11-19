@@ -20,8 +20,8 @@ How to install, build and run PhotoHub, what it needs from macOS, and how to use
 |---|---|---|
 | macOS 13 or later | the app | developed and tested on macOS 15, Apple silicon |
 | Xcode Command Line Tools | Swift compiler | `xcode-select --install` (full Xcode works too) |
-| uv | Python 3.14 environment for the catalog backend | `brew install uv` or see [docs.astral.sh/uv](https://docs.astral.sh/uv/) |
-| ExifTool | camera data during the scan, the demo | `brew install exiftool` |
+| uv | Python 3.14 environment for the catalog backend | `brew install uv` or see [docs.astral.sh/uv](https://docs.astral.sh/uv/); Python 3.14 with pip works too |
+| ExifTool | camera data and previews during the scan, the demo | `brew install exiftool`; the app and the catalog build work without it |
 | Claude Code CLI (optional) | the agent panel | [claude.com/claude-code](https://claude.com/claude-code), then log in once in Terminal |
 
 ## 2. Get the code
@@ -29,7 +29,24 @@ How to install, build and run PhotoHub, what it needs from macOS, and how to use
 ```sh
 git clone <repository-url> photohub
 cd photohub
+scripts/install.sh
+```
+
+`scripts/install.sh` (or `make install`) does sections 1, 2 and 4 in one go and can be run again at any time to update:
+
+1. checks macOS, the Command Line Tools and Swift, and says how to fix what is missing;
+2. sets up `.venv` with `uv sync --locked`, or, without uv, with Python 3.14+ and pip from the pinned `backend/requirements.txt`; offers `brew install uv` when Homebrew is there;
+3. checks ExifTool and offers `brew install exiftool`;
+4. offers to create the self-signed "PhotoHub Local Signing" identity in your login keychain (see section 4) and writes `scripts/local.env` if you do not have one yet; an existing `local.env` is never changed;
+5. builds the app and the analyzer in release mode, then signs and installs `PhotoHub.app` with `scripts/build_app.sh`, and prints the next steps.
+
+Options: `--user` installs into `~/Applications`, `--no-install` only builds and signs `build/PhotoHub.app`, `--demo` then opens the demo library, `--ad-hoc` skips the identity, `--yes` answers yes to every question; `scripts/install.sh --help` lists them all.
+
+The manual way, step by step:
+
+```sh
 uv sync
+scripts/build_app.sh
 ```
 
 `uv sync` creates `.venv` with Python 3.14 and the `photohub` command (`.venv/bin/photohub`). The app, the scripts and the agent all call this command, so keep the project folder where it is after building; `scripts/build_app.sh` records its path.
@@ -95,7 +112,7 @@ Copy `scripts/local.env.example` to `scripts/local.env` (ignored by git) and set
 
 ### Ad-hoc or a local signing identity
 
-Ad-hoc signing works, but every rebuild is a "new" app for macOS, which may ask for Photos access again and drop Full Disk Access. A self-signed identity keeps the permissions across rebuilds:
+Ad-hoc signing works, but every rebuild is a "new" app for macOS, which may ask for Photos access again and drop Full Disk Access. A self-signed identity keeps the permissions across rebuilds. `scripts/install.sh` creates one for you; to make it by hand:
 
 1. Open Keychain Access → Keychain Access menu → Certificate Assistant → Create a Certificate…
 2. Name: `PhotoHub Local Signing`, Identity Type: Self-Signed Root, Certificate Type: Code Signing. Create it in the login keychain.
